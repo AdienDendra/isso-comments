@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3'
 
 services:
   isso:
@@ -13,19 +13,26 @@ services:
     environment:
       - UID=1000
       - GID=1000
+      - ISSO_SMTP_PASSWORD=${SMTP_PASSWORD}
+      - ISSO_ADMIN_PASSWORD=${ISSO_ADMIN_PASSWORD}
     volumes:
       - ./config:/config
       - ./db:/db
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-    environment:
-      - ISSO_SMTP_PASSWORD=${ISSO_SMTP_PASSWORD}
-      - ISSO_ADMIN_PASSWORD=${ISSO_ADMIN_PASSWORD}
     ports:
       - "8080:8080"
+    networks:
+      - isso-net
 
   tunnel:
     image: cloudflare/cloudflared:latest
     container_name: tunnel
     restart: always
-    command: tunnel run --token eyJhIjoiMjJiYTUyNjFlZTc0NzAzMzU3ZGFmZjRmMTAxZTdhOGQiLCJ0IjoiMzU2YTkzMzQtOWRjOC00YWE0LWFjZDEtZjE0YWIyMGFmOGFjIiwicyI6IlptWXpZekU0WXpRdFlqSmtNaTAwT1daaExXSTRNMll0TWpOaE1EQTVZbUUyWXpBeSJ9
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
+    networks:
+      - isso-net
+
+networks:
+  isso-net:
+    driver: bridge
